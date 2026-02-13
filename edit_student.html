@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Breadcrumb Navigation -->
+    <nav class="mb-4 text-sm">
+        <ol class="list-none p-0 inline-flex">
+            <li class="flex items-center">
+                <a href="{{ url_for('index') }}" class="text-gray-600 hover:text-purple-600 transition">
+                    <i class="fas fa-home mr-1"></i>Dashboard
+                </a>
+                <i class="fas fa-chevron-right mx-2 text-gray-400 text-xs"></i>
+            </li>
+            <li class="flex items-center text-gray-800 font-medium">
+                <i class="fas fa-user-edit mr-1 text-purple-600"></i>Edit Student
+            </li>
+        </ol>
+    </nav>
+    
+    <!-- Main Edit Card -->
+    <div class="card p-8">
+        <!-- Header with Student Info -->
+        <div class="flex items-center mb-6 pb-6 border-b border-gray-200">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mr-4 shadow-lg">
+                <span class="text-white text-2xl font-bold">{{ student.name[:1] }}</span>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                            Edit Student Information
+                            <span class="ml-3 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-normal">
+                                ID: {{ student.id[-8:] }}
+                            </span>
+                        </h2>
+                        <p class="text-gray-600 mt-1">
+                            <i class="fas fa-clock mr-2 text-gray-400"></i>
+                            Last updated: {{ student.updated_at.strftime('%Y-%m-%d %H:%M') if student.updated_at else 'Not updated yet' }}
+                        </p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="{{ url_for('index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition">
+                            <i class="fas fa-arrow-left mr-2"></i>Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Form -->
+        <form method="POST" action="{{ url_for('edit_student', id=student.id) }}" class="space-y-6" id="editForm">
+            <!-- Personal Information Section -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-user-circle mr-2 text-purple-600"></i>
+                    Personal Information
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Name Field -->
+                    <div class="form-group">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-user mr-2 text-purple-600"></i>
+                            Full Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" 
+                                   name="name" 
+                                   id="name" 
+                                   value="{{ student.name }}"
+                                   class="form-input pl-10"
+                                   placeholder="Enter student's full name"
+                                   required
+                                   minlength="2"
+                                   maxlength="100">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Minimum 2 characters</p>
+                    </div>
+                    
+                    <!-- Age Field -->
+                    <div class="form-group">
+                        <label for="age" class="form-label">
+                            <i class="fas fa-calendar-alt mr-2 text-purple-600"></i>
+                            Age <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="number" 
+                                   name="age" 
+                                   id="age" 
+                                   value="{{ student.age }}"
+                                   class="form-input pl-10"
+                                   placeholder="Enter age"
+                                   min="1"
+                                   max="100"
+                                   required>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Must be between 1 and 100</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Academic Information Section -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-graduation-cap mr-2 text-purple-600"></i>
+                    Academic Information
+                </h3>
+                
+                <div class="grid md:grid-cols-1 gap-6">
+                    <!-- Class Field -->
+                    <div class="form-group">
+                        <label for="class_name" class="form-label">
+                            <i class="fas fa-chalkboard mr-2 text-purple-600"></i>
+                            Class/Grade <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-school absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <select name="class_name" 
+                                    id="class_name" 
+                                    class="form-input pl-10 appearance-none"
+                                    required>
+                                <option value="" disabled>Select Class</option>
+                                {% for grade in range(1, 13) %}
+                                    <option value="{{ grade }}" {% if student.class_name == grade|string %}selected{% endif %}>
+                                        Grade {{ grade }} {% if grade < 5 %}(Elementary){% elif grade < 9 %}(Middle School){% else %}(High School){% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Information Section -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-address-card mr-2 text-purple-600"></i>
+                    Contact Information
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope mr-2 text-purple-600"></i>
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="email" 
+                                   name="email" 
+                                   id="email" 
+                                   value="{{ student.email }}"
+                                   class="form-input pl-10"
+                                   placeholder="student@example.com"
+                                   required
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Must be a valid email address</p>
+                    </div>
+                    
+                    <!-- Phone Field -->
+                    <div class="form-group">
+                        <label for="phone" class="form-label">
+                            <i class="fas fa-phone mr-2 text-purple-600"></i>
+                            Phone Number <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="tel" 
+                                   name="phone" 
+                                   id="phone" 
+                                   value="{{ student.phone }}"
+                                   class="form-input pl-10"
+                                   placeholder="(123) 456-7890"
+                                   required
+                                   pattern="[0-9+\-\s()]{10,}">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Format: (123) 456-7890 or +1234567890</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information (Optional) -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-purple-600"></i>
+                    Additional Information
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Created At (Read-only) -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-calendar-plus mr-2 text-gray-500"></i>
+                            Created At
+                        </label>
+                        <div class="px-4 py-2 bg-gray-100 rounded-lg text-gray-600 text-sm">
+                            <i class="far fa-clock mr-2"></i>
+                            {{ student.created_at.strftime('%B %d, %Y at %I:%M %p') if student.created_at else 'Not available' }}
+                        </div>
+                    </div>
+                    
+                    <!-- Student ID (Read-only) -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-id-card mr-2 text-gray-500"></i>
+                            Student ID
+                        </label>
+                        <div class="px-4 py-2 bg-gray-100 rounded-lg text-gray-600 text-sm font-mono">
+                            <i class="fas fa-hashtag mr-2"></i>
+                            {{ student.id }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Actions with Confirmation -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="{{ url_for('index') }}" 
+                   class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </a>
+                <button type="button" 
+                        onclick="confirmUpdate()"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
+                    <i class="fas fa-save mr-2"></i>
+                    Update Student
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Danger Zone (Delete Section) -->
+    <div class="mt-6 card p-6 border-2 border-red-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-semibold text-red-600 flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Danger Zone
+                </h3>
+                <p class="text-sm text-gray-600 mt-1">
+                    Once you delete a student, there is no going back. Please be certain.
+                </p>
+            </div>
+            <button onclick="confirmDelete('{{ student.id }}', '{{ student.name }}')"
+                    class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center">
+                <i class="fas fa-trash-alt mr-2"></i>
+                Delete Student
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="text-center">
+            <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Delete Student?</h3>
+            <p class="text-gray-600 mb-2" id="deleteMessage">This action cannot be undone.</p>
+            <p class="text-sm text-gray-500 mb-6" id="deleteWarning"></p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="closeDeleteModal()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
+                <a href="#" id="confirmDeleteBtn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    <i class="fas fa-trash mr-2"></i>Delete Permanently
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Confirmation Modal -->
+<div id="updateModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="text-center">
+            <div class="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-save text-4xl text-blue-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Confirm Update</h3>
+            <p class="text-gray-600 mb-6">Are you sure you want to update this student's information?</p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="closeUpdateModal()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
+                <button onclick="submitForm()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-check mr-2"></i>Confirm Update
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+// Delete confirmation
+function confirmDelete(studentId, studentName) {
+    document.getElementById('deleteMessage').innerHTML = `Are you sure you want to delete <strong>${studentName}</strong>?`;
+    document.getElementById('deleteWarning').innerHTML = 'This will permanently remove all data associated with this student.';
+    document.getElementById('confirmDeleteBtn').href = `/delete/${studentId}`;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+// Update confirmation
+function confirmUpdate() {
+    // Validate form before showing confirmation
+    const form = document.getElementById('editForm');
+    if (form.checkValidity()) {
+        document.getElementById('updateModal').classList.remove('hidden');
+    } else {
+        form.reportValidity();
+    }
+}
+
+function closeUpdateModal() {
+    document.getElementById('updateModal').classList.add('hidden');
+}
+
+function submitForm() {
+    document.getElementById('editForm').submit();
+}
+
+// Form validation before submit
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value;
+    const age = document.getElementById('age').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    
+    let isValid = true;
+    let errorMessage = '';
+    
+    if (name.length < 2) {
+        errorMessage += 'Name must be at least 2 characters long.\n';
+        isValid = false;
+    }
+    
+    if (age < 1 || age > 100) {
+        errorMessage += 'Age must be between 1 and 100.\n';
+        isValid = false;
+    }
+    
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(email)) {
+        errorMessage += 'Please enter a valid email address.\n';
+        isValid = false;
+    }
+    
+    const phonePattern = /^[0-9+\-\s()]{10,}$/;
+    if (!phonePattern.test(phone)) {
+        errorMessage += 'Please enter a valid phone number.\n';
+        isValid = false;
+    }
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert('Validation Errors:\n' + errorMessage);
+    }
+});
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const deleteModal = document.getElementById('deleteModal');
+    const updateModal = document.getElementById('updateModal');
+    
+    if (event.target == deleteModal) {
+        deleteModal.classList.add('hidden');
+    }
+    if (event.target == updateModal) {
+        updateModal.classList.add('hidden');
+    }
+}
+
+// Live validation indicators
+document.getElementById('name').addEventListener('input', function() {
+    const isValid = this.value.length >= 2;
+    this.style.borderColor = isValid ? '#10b981' : '#ef4444';
+});
+
+document.getElementById('age').addEventListener('input', function() {
+    const value = parseInt(this.value);
+    const isValid = value >= 1 && value <= 100;
+    this.style.borderColor = isValid ? '#10b981' : '#ef4444';
+});
+
+document.getElementById('email').addEventListener('input', function() {
+    const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const isValid = pattern.test(this.value);
+    this.style.borderColor = isValid ? '#10b981' : '#ef4444';
+});
+
+document.getElementById('phone').addEventListener('input', function() {
+    const pattern = /^[0-9+\-\s()]{10,}$/;
+    const isValid = pattern.test(this.value);
+    this.style.borderColor = isValid ? '#10b981' : '#ef4444';
+});
+
+// Warn user if they try to leave with unsaved changes
+let formChanged = false;
+
+document.getElementById('editForm').addEventListener('input', function() {
+    formChanged = true;
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formChanged) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Reset form changed flag after submission
+document.getElementById('editForm').addEventListener('submit', function() {
+    formChanged = false;
+});
+</script>
+{% endblock %}

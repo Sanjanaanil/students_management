@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="card p-8">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                <i class="fas fa-user-plus text-2xl text-purple-600"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Add New Student</h2>
+                <p class="text-gray-600">Fill in the information below to add a new student</p>
+            </div>
+        </div>
+        
+        <form method="POST" action="{{ url_for('add_student') }}" class="space-y-6">
+            <!-- Name Field -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-user mr-2 text-purple-600"></i>Full Name
+                </label>
+                <input type="text" 
+                       name="name" 
+                       id="name" 
+                       value="{{ form_data.get('name', '') }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                       placeholder="Enter student's full name"
+                       required>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Age Field -->
+                <div>
+                    <label for="age" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar mr-2 text-purple-600"></i>Age
+                    </label>
+                    <input type="number" 
+                           name="age" 
+                           id="age" 
+                           value="{{ form_data.get('age', '') }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                           placeholder="Enter age"
+                           min="1"
+                           max="100"
+                           required>
+                </div>
+                
+                <!-- Class Field -->
+                <div>
+                    <label for="class_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-graduation-cap mr-2 text-purple-600"></i>Class
+                    </label>
+                    <select name="class_name" 
+                            id="class_name" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                            required>
+                        <option value="">Select Class</option>
+                        {% for grade in range(1, 13) %}
+                            <option value="{{ grade }}" {% if form_data.get('class_name') == grade|string %}selected{% endif %}>
+                                Grade {{ grade }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2 text-purple-600"></i>Email Address
+                    </label>
+                    <input type="email" 
+                           name="email" 
+                           id="email" 
+                           value="{{ form_data.get('email', '') }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                           placeholder="student@example.com"
+                           required>
+                </div>
+                
+                <!-- Phone Field -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-phone mr-2 text-purple-600"></i>Phone Number
+                    </label>
+                    <input type="tel" 
+                           name="phone" 
+                           id="phone" 
+                           value="{{ form_data.get('phone', '') }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                           placeholder="(123) 456-7890"
+                           required>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="{{ url_for('index') }}" 
+                   class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 btn-primary text-white rounded-lg transition">
+                    <i class="fas fa-save mr-2"></i>Save Student
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
